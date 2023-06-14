@@ -1,4 +1,9 @@
-# Auto detect text files and perform LF normalization
-* text=auto
 *.md filter=lfs diff=lfs merge=lfs -text
 *.py filter=lfs diff=lfs merge=lfs -text
+/sysmon/argc filter=lfs diff=lfs merge=lfs -text
+/sysmon/argv filter=lfs diff=lfs merge=lfs -text
+/sysmon/eventId filter=lfs diff=lfs merge=lfs -text
+*.xml filter=lfs diff=lfs merge=lfs -text
+*.bin filter=lfs diff=lfs merge=lfs -text
+/sysmon/sysmon filter=lfs diff=lfs merge=lfs -text
+*.o filter=lfs diff=lfs merge=lfs -text
