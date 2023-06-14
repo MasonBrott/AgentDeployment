@@ -3,7 +3,8 @@ Deploy logging agents to linux hosts over SSH using python. Specifically filebea
 
 deployAgents.py will install/uninstall filebeat and auditbeat correctly during my testing on an Ubuntu 22.04 VM as well as a Centos 7 VM
 Installing/Uninstalling sysmonforlinux works correctly on Ubuntu 22.04 but is missing dependencies for the Centos 7 deployment.
-
+<br><br>
+<a href="https://masonbrott.github.io/AgentDeployment/"><strong>DOCS LOCATED HERE</strong></a> <br>
 <h3>Usage</h3>
 
         python3 deployAgents.py <action> <agent/s> -u <user> -t <target-list>
