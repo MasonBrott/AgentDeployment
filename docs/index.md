@@ -1,4 +1,6 @@
-# Command line arguments
+# AgentDeployment Docs
+
+## Command line arguments
 
 At the start of the script, we're using argparse to handle command-line arguments. This built-in Python module makes it easy to write user-friendly command-line interfaces. The argparse module also automatically generates help and usage messages and throws errors when users provide invalid arguments.
 
@@ -38,7 +40,7 @@ Additionally there are two more parameters being captured not using argparse:
 2. 'pw' - The password for the remote user. This is used to run sudo commands on the remote machines.
           This is captured from the terminal after the script starts to run using getpass() from the getpass library
           
-# Script Execution
+## Script Execution
 
 Three functions are used to handle install / uninstall for each agent (one function for each agent type):
 
@@ -75,7 +77,3 @@ Three functions are used to handle install / uninstall for each agent (one funct
 4. Lastly, there is a try-except block that calls the appropriate function based on the values of the `program` and `action` variables, and handles a keyboard interrupt exception.
 
 Note: Each function uses the subprocess module to run shell commands and SSH commands for copying files and executing commands on the remote hosts. The sshpass command is used to provide the password for SSH connections.
-
-
-<link rel="icon" type="image/png" href="/images/icon.png" sizes="32x32" />
-<link rel="icon" type="image/png" href="/images/icon.png" sizes="16x16" />
