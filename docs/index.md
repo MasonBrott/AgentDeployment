@@ -75,3 +75,7 @@ Three functions are used to handle install / uninstall for each agent (one funct
 4. Lastly, there is a try-except block that calls the appropriate function based on the values of the `program` and `action` variables, and handles a keyboard interrupt exception.
 
 Note: Each function uses the subprocess module to run shell commands and SSH commands for copying files and executing commands on the remote hosts. The sshpass command is used to provide the password for SSH connections.
+
+
+<link rel="icon" type="image/png" href="/images/icon.png" sizes="32x32" />
+<link rel="icon" type="image/png" href="/images/icon.png" sizes="16x16" />
