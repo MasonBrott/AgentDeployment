@@ -1,6 +1,4 @@
-# AgentDeployment Docs
-
-## Command line arguments
+# Command line arguments
 
 At the start of the script, we're using argparse to handle command-line arguments. This built-in Python module makes it easy to write user-friendly command-line interfaces. The argparse module also automatically generates help and usage messages and throws errors when users provide invalid arguments.
 
@@ -40,7 +38,7 @@ Additionally there are two more parameters being captured not using argparse:
 2. 'pw' - The password for the remote user. This is used to run sudo commands on the remote machines.
           This is captured from the terminal after the script starts to run using getpass() from the getpass library
           
-## Script Execution
+# Script Execution
 
 Three functions are used to handle install / uninstall for each agent (one function for each agent type):
 
