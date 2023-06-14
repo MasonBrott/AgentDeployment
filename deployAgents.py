@@ -10,8 +10,6 @@ import subprocess
 from getpass import getpass, getuser
 
 __author__ = "Mason Brott"
-__version__ = "1.0"
-__email__ = "masonbrott@gmail.com"
 
 # Set up command line parameters using argparse
 class uniqueappendaction(argparse.Action):
@@ -88,9 +86,12 @@ def filebeat(action, requests):
                 "RestartSec=3\n", "\n",
                 "[Install]\n",
                 "WantedBy=multi-user.target\n"]
-        
-        with open("/home/" + localuser + "/agent/filebeat/filebeat.service", "w+") as serviceFile:
-            serviceFile.writelines(unit)
+        try:
+            with open("/home/" + localuser + "/agent/filebeat/filebeat.service", "w+") as serviceFile:
+                serviceFile.writelines(unit)
+        except IOError as e:
+            print("File can not be opened. Make sure file is not already in use.")
+            SystemExit
         
         # Set of commands that need to be run on the remote machine
         # Adding "-S" to sudo allows for password to be read from standardin
@@ -109,35 +110,43 @@ def filebeat(action, requests):
 
         # Iterate over each host in the target list
         for request in requests:
-            ip = request.split("@")
+            try:
+                ip = request.split("@")
 
-            # Copying the tar file to remote host using scp
-            with subprocess.Popen(['sshpass', '-p', str(pw), 'scp', '-T', '-o', 'StrictHostKeyChecking=no', ('/home/' + localuser + '/agent/filebeat.tar'), (request + ':/tmp/')]) as scp:
-                print("Copying filebeat.tar to " + ip[1])
-            
-            print("Installing filebeat on " + ip[1])
-
-            # Iterate over each command that will need to be run
-            for command in commands:
-                if "sudo" in command:
-                    # Run the command through ssh
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        # Write the password given through stdin to your command
-                        process.stdin.write((pw + "\n").encode())
-                        process.stdin.flush()
-                        while True:
-                            # Capturing response from stdout if that functionality is needed in a later iteration of the script
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
+                # Copying the tar file to remote host using scp
+                with subprocess.Popen(['sshpass', '-p', str(pw), 'scp', '-T', '-o', 'StrictHostKeyChecking=no', ('/home/' + localuser + '/agent/filebeat.tar'), (request + ':/tmp/')]) as scp:
+                    print("Copying filebeat.tar to " + ip[1])
                 
-                # Same as above but without sudo. Not currently being used.
-                else:
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        while True:
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
-            print("Finished installing filebeat")
+                print("Installing filebeat on " + ip[1])
 
+                # Iterate over each command that will need to be run
+                for command in commands:
+                    if "sudo" in command:
+                        # Run the command through ssh
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            # Write the password given through stdin to your command
+                            process.stdin.write((pw + "\n").encode())
+                            process.stdin.flush()
+                            while True:
+                                # Capturing response from stdout if that functionality is needed in a later iteration of the script
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                    
+                    # Same as above but without sudo. Not currently being used.
+                    else:
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            while True:
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                print("Finished installing filebeat")
+            except Exception as e:
+                print("There was an error while running: " + e)
+                print("Error on host: " + ip)
+                pass
+
+        with (subprocess.Popen(['rm', 'filebeat.tar'])):
+            pass
+        
     # Setting up the uninstall/removal of filebeat
     elif action == 'uninstall':
 
@@ -152,23 +161,28 @@ def filebeat(action, requests):
                     ("sudo -S systemctl daemon-reload")
                     ]
 
-        # Iterate over each host in the target list   
+        # Iterate over each host in the target list
         for request in requests:
-            ip = request.split("@")
-            print('Uninstalling filebeat on ' + ip[1])
+            try:
+                ip = request.split("@")
+                print('Uninstalling filebeat on ' + ip[1])
 
-            # Iterate over each command that will need to be run
-            for command in commands:
-                    # Run the command through ssh
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        # Write the password given through stdin to your command
-                        process.stdin.write((pw + "\n").encode())
-                        process.stdin.flush()
-                        while True:
-                            # Capturing response from stdout if that functionality is needed in a later iteration of the script
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
-            print("Done uninstalling filebeat")
+                # Iterate over each command that will need to be run
+                for command in commands:
+                        # Run the command through ssh
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            # Write the password given through stdin to your command
+                            process.stdin.write((pw + "\n").encode())
+                            process.stdin.flush()
+                            while True:
+                                # Capturing response from stdout if that functionality is needed in a later iteration of the script
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                print("Done uninstalling filebeat")
+            except Exception as e:
+                print("There was an error while running: " + e)
+                print("Error on host: " + ip)
+                pass
 
 # Defining the function for auditbeat install/uninstalls
 def auditbeat(action, requests):
@@ -189,8 +203,12 @@ def auditbeat(action, requests):
                 "[Install]\n",
                 "WantedBy=multi-user.target\n"]
         
-        with open("/home/" + localuser + "/agent/auditbeat/auditbeat.service", "w+") as serviceFile:
-            serviceFile.writelines(unit)
+        try:
+            with open("/home/" + localuser + "/agent/auditbeat/auditbeat.service", "w+") as serviceFile:
+                serviceFile.writelines(unit)
+        except IOError as e:
+            print("File can not be opened. Make sure file is not already in use.")
+            SystemExit
         
         # Set of commands that need to be run on the remote machine
         # Adding "-S" to sudo allows for password to be read from standardin
@@ -209,34 +227,42 @@ def auditbeat(action, requests):
         
         # Iterate over each host in the target list
         for request in requests:
-            ip = request.split("@")
+            try:
+                ip = request.split("@")
 
-            # Copying the tar file to remote host using scp
-            with subprocess.Popen(['sshpass', '-p', str(pw), 'scp', '-T', '-o', 'StrictHostKeyChecking=no', ('/home/' + localuser + '/agent/auditbeat.tar'), (request + ':/tmp/')]) as scp:
-                print("Copying auditbeat.tar to " + ip[1])
-            
-            print("Installing auditbeat on " + ip[1])
-
-            # Iterate over each command that will need to be run
-            for command in commands:
-                if "sudo" in command:
-                    # Run the command through ssh
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        # Write the password given through stdin to your command
-                        process.stdin.write((pw + "\n").encode())
-                        process.stdin.flush()
-                        while True:
-                            # Capturing response from stdout if that functionality is needed in a later iteration of the script
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
+                # Copying the tar file to remote host using scp
+                with subprocess.Popen(['sshpass', '-p', str(pw), 'scp', '-T', '-o', 'StrictHostKeyChecking=no', ('/home/' + localuser + '/agent/auditbeat.tar'), (request + ':/tmp/')]) as scp:
+                    print("Copying auditbeat.tar to " + ip[1])
                 
-                # Same as above but without sudo. Not currently being used.
-                else:
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        while True:
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
-            print("Finished installing auditbeat")
+                print("Installing auditbeat on " + ip[1])
+
+                # Iterate over each command that will need to be run
+                for command in commands:
+                    if "sudo" in command:
+                        # Run the command through ssh
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            # Write the password given through stdin to your command
+                            process.stdin.write((pw + "\n").encode())
+                            process.stdin.flush()
+                            while True:
+                                # Capturing response from stdout if that functionality is needed in a later iteration of the script
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                    
+                    # Same as above but without sudo. Not currently being used.
+                    else:
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            while True:
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                print("Finished installing auditbeat")
+            except Exception as e:
+                print("There was an error while running: " + e)
+                print("Error on host: " + ip)
+                pass
+
+        with (subprocess.Popen(['rm', 'auditbeat.tar'])):
+            pass
 
     # Setting up the uninstall/removal of auditbeat
     elif action == 'uninstall':
@@ -251,22 +277,27 @@ def auditbeat(action, requests):
                     ("sudo -S systemctl daemon-reload")
                     ]
 
-        # Iterate over each host in the target list           
+        # Iterate over each host in the target list         
         for request in requests:
-            ip = request.split("@")
-            print('Uninstalling auditbeat on ' + ip[1])
-            # Iterate over each command that will need to be run
-            for command in commands:
-                    # Run the command through ssh
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        # Write the password given through stdin to your command
-                        process.stdin.write((pw + "\n").encode())
-                        process.stdin.flush()
-                        while True:
-                            # Capturing response from stdout if that functionality is needed in a later iteration of the script
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
-            print("Done uninstalling auditbeat")
+            try:
+                ip = request.split("@")
+                print('Uninstalling auditbeat on ' + ip[1])
+                # Iterate over each command that will need to be run
+                for command in commands:
+                        # Run the command through ssh
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            # Write the password given through stdin to your command
+                            process.stdin.write((pw + "\n").encode())
+                            process.stdin.flush()
+                            while True:
+                                # Capturing response from stdout if that functionality is needed in a later iteration of the script
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                print("Done uninstalling auditbeat")
+            except Exception as e:
+                print("There was an error while running: " + e)
+                print("Error on host: " + ip)
+                pass
 
 # Defining the function for sysmon install/uninstalls
 # No unit file needed as sysmon installs itself as a service by default
@@ -299,37 +330,47 @@ def sysmon(action, requests):
 
         # Iterate over each host in the target list
         for request in requests:
-            ip = request.split("@")
+            try:
+                ip = request.split("@")
 
-            # Copying the tar files (ebpf dependencies and sysmon) to remote host using scp
-            with subprocess.Popen(['sshpass', '-p', str(pw), 'scp', '-T', '-o', 'StrictHostKeyChecking=no', ('/home/' + localuser + '/agent/ebpf.tar'), (request + ':/tmp/')]) as scp:
-                pass
+                # Copying the tar files (ebpf dependencies and sysmon) to remote host using scp
+                with subprocess.Popen(['sshpass', '-p', str(pw), 'scp', '-T', '-o', 'StrictHostKeyChecking=no', ('/home/' + localuser + '/agent/ebpf.tar'), (request + ':/tmp/')]) as scp:
+                    pass
 
-            with subprocess.Popen(['sshpass', '-p', str(pw), 'scp', '-T', '-o', 'StrictHostKeyChecking=no', ('/home/' + localuser + '/agent/sysmon.tar'), (request + ':/tmp/')]) as scp:
-                print("Copying sysmon.tar to " + ip[1])
-            
-            print("Installing sysmon on " + ip[1])
-
-            # Iterate over each command that will need to be run
-            for command in commands:
-                if "sudo" in command:
-                    # Run the command through ssh
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        # Write the password given through stdin to your command
-                        process.stdin.write((pw + "\n").encode())
-                        process.stdin.flush()
-                        while True:
-                            # Capturing response from stdout if that functionality is needed in a later iteration of the script
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
+                with subprocess.Popen(['sshpass', '-p', str(pw), 'scp', '-T', '-o', 'StrictHostKeyChecking=no', ('/home/' + localuser + '/agent/sysmon.tar'), (request + ':/tmp/')]) as scp:
+                    print("Copying sysmon.tar to " + ip[1])
                 
-                # Same as above but without sudo. Not currently being used.
-                else:
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        while True:
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
-            print("Finished installing sysmon")
+                print("Installing sysmon on " + ip[1])
+
+                # Iterate over each command that will need to be run
+                for command in commands:
+                    if "sudo" in command:
+                        # Run the command through ssh
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            # Write the password given through stdin to your command
+                            process.stdin.write((pw + "\n").encode())
+                            process.stdin.flush()
+                            while True:
+                                # Capturing response from stdout if that functionality is needed in a later iteration of the script
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                    
+                    # Same as above but without sudo. Not currently being used.
+                    else:
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            while True:
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                print("Finished installing sysmon")
+            except Exception as e:
+                print("There was an error while running: " + e)
+                print("Error on host: " + ip)
+
+        with (subprocess.Popen(['rm', 'sysmon.tar'])):
+            pass
+        
+        with (subprocess.Popen(['rm', 'ebpf.tar'])):
+            pass
 
     # Setting up the uninstall/removal of sysmon
     elif action == 'uninstall':
@@ -349,31 +390,38 @@ def sysmon(action, requests):
                     ("sudo -S systemctl daemon-reload")
                     ]
 
-        # Iterate over each host in the target list      
+        # Iterate over each host in the target list  
         for request in requests:
-            ip = request.split("@")
-            print('Uninstalling sysmon on ' + ip[1])
-            # Iterate over each command that will need to be run
-            for command in commands:
-                    # Run the command through ssh
-                    with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
-                        # Write the password given through stdin to your command
-                        process.stdin.write((pw + "\n").encode())
-                        process.stdin.flush()
-                        while True:
-                            # Capturing response from stdout if that functionality is needed in a later iteration of the script
-                            response.append(process.stdout.readline().decode('ascii').strip())
-                            break
-            print("Done uninstalling sysmon")
-
+            try:
+                ip = request.split("@")
+                print('Uninstalling sysmon on ' + ip[1])
+                # Iterate over each command that will need to be run
+                for command in commands:
+                        # Run the command through ssh
+                        with subprocess.Popen(['sshpass', '-p', str(pw), 'ssh', '-T', '-o', 'StrictHostKeyChecking=no', '-t', request, command], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as process:
+                            # Write the password given through stdin to your command
+                            process.stdin.write((pw + "\n").encode())
+                            process.stdin.flush()
+                            while True:
+                                # Capturing response from stdout if that functionality is needed in a later iteration of the script
+                                response.append(process.stdout.readline().decode('ascii').strip())
+                                break
+                print("Done uninstalling sysmon")
+            except Exception as e:
+                print("There was an error while running: " + e)
+                print("Error on host: " + ip)
 
 # Basic logic that will set the different functions in motion
 # Will run the install or uninstall portion of each function given
 # In the "program" command line parameter
-for prog in program:
-    if prog == "filebeat":
-        filebeat(action, requests)
-    elif prog == "auditbeat":
-        auditbeat(action, requests)
-    elif prog == "sysmon":
-        sysmon(action, requests)
+try:
+    for prog in program:   
+        if prog == "filebeat":
+            filebeat(action, requests)
+        elif prog == "auditbeat":
+            auditbeat(action, requests)
+        elif prog == "sysmon":
+            sysmon(action, requests)
+except KeyboardInterrupt:
+    print("\nExiting")
+    SystemExit
