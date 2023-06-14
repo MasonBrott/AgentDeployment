@@ -7,3 +7,9 @@
 *.bin filter=lfs diff=lfs merge=lfs -text
 /sysmon/sysmon filter=lfs diff=lfs merge=lfs -text
 *.o filter=lfs diff=lfs merge=lfs -text
+auditbeat/ filter=lfs diff=lfs merge=lfs -text
+auditbeat/fields.yml filter=lfs diff=lfs merge=lfs -text
+auditbeat/auditbeat filter=lfs diff=lfs merge=lfs -text
+auditbeat/auditbeat.yml filter=lfs diff=lfs merge=lfs -text
+auditbeat/audit.rules.d filter=lfs diff=lfs merge=lfs -text
+auditbeat/data filter=lfs diff=lfs merge=lfs -text
