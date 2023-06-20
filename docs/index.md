@@ -1,4 +1,20 @@
-# Command line arguments
+# Suggested File Structure
+
+```
+-- agent
+
+        |-- deployAgents.py
+    
+        |-- auditbeat
+    
+        |-- filebeat
+    
+        |-- sysinternalsEBPF
+    
+        |-- sysmon
+```
+
+# Command Line Arguments
 
 At the start of the script, we're using argparse to handle command-line arguments. This built-in Python module makes it easy to write user-friendly command-line interfaces. The argparse module also automatically generates help and usage messages and throws errors when users provide invalid arguments.
 
