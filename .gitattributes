@@ -1,4 +1,2 @@
-auditbeat/* linguist-detectable=false
-filebeat/* linguist-detectable=false
-sysinternalsEBPF/* linguist-detectable=false
-sysmon/* linguist-detectable=false
+* linguist-vendored
+*.py linguist-vendored=false
