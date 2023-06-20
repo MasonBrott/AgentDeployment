@@ -1,0 +1,4 @@
+auditbeat/* linguist-vendored
+filebeat/* linguist-vendored
+sysinternalsEBPF/* linguist-vendored
+sysmon/* linguist-vendored
