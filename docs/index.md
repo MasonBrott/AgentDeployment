@@ -62,7 +62,7 @@ Three functions are used to handle install / uninstall for each agent (one funct
 
     The 'uninstall' action sets up commands for uninstalling the service on the remote machines and runs them on each target host.
 
-3. **`sysmon(action, requests)`** - This function is responsible for installing or uninstalling the `sysmon` service on remote hosts. The service is part of the Sysinternals Suite from Microsoft and is used for monitoring and logging system activity to the Windows event log.
+3. **`sysmon(action, requests)`** - This function is responsible for installing or uninstalling the `sysmon` service on remote hosts. The service is part of the Sysinternals Suite from Microsoft and is used for monitoring and logging system activity to /var/syslog.
 
     The function accepts two arguments:
     - `action`: A string that can be either 'install' or 'uninstall'.
