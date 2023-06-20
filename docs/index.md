@@ -52,7 +52,9 @@ Three functions are used to handle install / uninstall for each agent (one funct
 
     The 'uninstall' action sets up commands for uninstalling the service on the remote machines and runs them on each target host.
 
-2. **`auditbeat(action, requests)`** - This function is responsible for installing or uninstalling the `auditbeat` service on remote hosts. The service is also part of the Elastic stack and is used for auditing the activities of a system.
+    The default config from elastic is currently being shipped this should be changed.
+
+3. **`auditbeat(action, requests)`** - This function is responsible for installing or uninstalling the `auditbeat` service on remote hosts. The service is also part of the Elastic stack and is used for auditing the activities of a system.
 
     The function accepts two arguments:
     - `action`: A string that can be either 'install' or 'uninstall'.
@@ -62,7 +64,9 @@ Three functions are used to handle install / uninstall for each agent (one funct
 
     The 'uninstall' action sets up commands for uninstalling the service on the remote machines and runs them on each target host.
 
-3. **`sysmon(action, requests)`** - This function is responsible for installing or uninstalling the `sysmon` service on remote hosts. The service is part of the Sysinternals Suite from Microsoft and is used for monitoring and logging system activity to `/var/syslog`.
+    Default config being shipped is from https://github.com/bfuzzy/auditd-attack/tree/master
+
+4. **`sysmon(action, requests)`** - This function is responsible for installing or uninstalling the `sysmon` service on remote hosts. The service is part of the Sysinternals Suite from Microsoft and is used for monitoring and logging system activity to `/var/syslog`.
 
     The function accepts two arguments:
     - `action`: A string that can be either 'install' or 'uninstall'.
@@ -72,6 +76,8 @@ Three functions are used to handle install / uninstall for each agent (one funct
 
     The 'uninstall' action sets up commands for uninstalling the service on the remote machines and runs them on each target host.
 
-4. Lastly, there is a try-except block that calls the appropriate function based on the values of the `program` and `action` variables, and handles a keyboard interrupt exception.
+    Default config being shipped is from https://github.com/microsoft/MSTIC-Sysmon/tree/main/linux/configs
+
+5. Lastly, there is a try-except block that calls the appropriate function based on the values of the `program` and `action` variables, and handles a keyboard interrupt exception.
 
 Note: Each function uses the subprocess module to run shell commands and SSH commands for copying files and executing commands on the remote hosts. The sshpass command is used to provide the password for SSH connections.
