@@ -1,4 +1,4 @@
-auditbeat/* linguist-vendored
-filebeat/* linguist-vendored
-sysinternalsEBPF/* linguist-vendored
-sysmon/* linguist-vendored
+auditbeat/* linguist-detectable=false
+filebeat/* linguist-detectable=false
+sysinternalsEBPF/* linguist-detectable=false
+sysmon/* linguist-detectable=false
