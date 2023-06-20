@@ -5,6 +5,24 @@ deployAgents.py will install/uninstall filebeat and auditbeat correctly during m
 Installing/Uninstalling sysmonforlinux works correctly on Ubuntu 22.04 but is missing dependencies for the Centos 7 deployment.
 <br><br>
 <a href="https://masonbrott.github.io/AgentDeployment/"><strong>DOCS LOCATED HERE</strong></a> <br>
+
+<h3>File Structure</h3>
+
+```
+-- agent
+
+        |-- deployAgents.py
+    
+        |-- auditbeat
+    
+        |-- filebeat
+    
+        |-- sysinternalsEBPF
+    
+        |-- sysmon
+```
+        
+
 <h3>Usage</h3>
 
         python3 deployAgents.py <action> <agent/s> -u <user> -t <target-list>
