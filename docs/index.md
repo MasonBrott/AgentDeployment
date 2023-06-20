@@ -68,7 +68,7 @@ Three functions are used to handle install / uninstall for each agent (one funct
 
     The 'uninstall' action sets up commands for uninstalling the service on the remote machines and runs them on each target host.
 
-    The default config from elastic is currently being shipped this should be changed.
+    <strong>The default config from elastic is currently being shipped this should be changed.</strong>
 
 3. **`auditbeat(action, requests)`** - This function is responsible for installing or uninstalling the `auditbeat` service on remote hosts. The service is also part of the Elastic stack and is used for auditing the activities of a system.
 
