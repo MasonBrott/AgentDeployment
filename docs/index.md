@@ -1,3 +1,15 @@
+# Installation
+
+You can install this repo locally using one of two methods:
+
+- Clicking on "code" and downloading the zip
+
+  - This will require separately downloading the filebeat and auditbeat executables and placing them within the correct directories
+
+- Installing "git-lfs" and running `git lfs clone`
+
+  - This will download all of the files correctly
+
 # Suggested File Structure
 
 ```
