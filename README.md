@@ -6,6 +6,18 @@ Installing/Uninstalling sysmonforlinux works correctly on Ubuntu 22.04 but is mi
 <br><br>
 <a href="https://masonbrott.github.io/AgentDeployment/"><strong>DOCS LOCATED HERE</strong></a> <br>
 
+<h3>Installation</h3>
+
+You can install this repo locally using one of two methods:
+
+- Clicking on "code" and downloading the zip
+
+  - This will require separately downloading the filebeat and auditbeat executables and placing them within the correct directories
+
+- Installing "git-lfs" and running `git lfs clone`
+
+  - This will download all of the files correctly
+
 <h3>File Structure</h3>
 
 ```
